@@ -128,6 +128,7 @@ footer{background:#08183a; color:#C7D2DE;}
 @media (max-width:600px){ .loc-row{padding:2px 20px; flex-direction:column; gap:2px;} }
 </style>
   <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="assets/responsive.css">
 </head>
 <body>
 
@@ -150,15 +151,15 @@ footer{background:#08183a; color:#C7D2DE;}
     </nav>
     <div class="nav-right">
       <div class="search-wrap">
-        <button class="search-btn" aria-label="Search GOCYBEX" onclick="var w=this.parentNode; w.classList.toggle('open'); if(w.classList.contains('open')){ w.querySelector('input').focus(); }">
+        <button class="search-btn" aria-label="Search GOCYBEX" type="button">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
-        <form class="search-form" onsubmit="event.preventDefault(); var q=this.querySelector('input').value.trim(); if(q){ window.open('https://www.google.com/search?q=site:gocybex.com+'+encodeURIComponent(q), '_blank'); }">
+        <form class="search-form">
           <input type="text" placeholder="Search GOCYBEX...">
         </form>
       </div>
       <a class="btn btn-primary" href="https://calendly.com/gocybex" target="_blank" rel="noopener">Schedule a Consultation →</a>
-    <button class="mobile-toggle" aria-label="Toggle menu" onclick="var n=document.querySelector('nav'); n.classList.toggle('nav-open'); this.classList.toggle('active');">
+    <button class="mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
     </div>
@@ -276,29 +277,7 @@ footer{background:#08183a; color:#C7D2DE;}
 </footer>
 
 
-<script>
-  document.addEventListener('DOMContentLoaded', function(){
-    var revealEls = document.querySelectorAll('.reveal');
-    var observer = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          entry.target.classList.add('in-view');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    revealEls.forEach(function(el){ observer.observe(el); });
-
-    // Subtle parallax on hero background
-    var parallax = document.querySelector('.parallax-bg');
-    if(parallax){
-      window.addEventListener('scroll', function(){
-        var offset = window.scrollY;
-        parallax.style.transform = 'translateY(' + (offset * 0.25) + 'px)';
-      }, { passive: true });
-    }
-  });
-</script>
+<script src="assets/main.js" defer></script>
 
 </body>
 </html>

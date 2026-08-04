@@ -1,0 +1,101 @@
+/* =========================================================
+   GOCYBEX — shared responsive & interactivity layer
+   Loaded on every page AFTER the page's own inline <style>,
+   so these rules patch/extend rather than fight existing CSS.
+   ========================================================= */
+
+/* --- Global safety net: never allow horizontal scroll/jitter --- */
+html, body { max-width: 100%; overflow-x: hidden; }
+*, *::before, *::after { box-sizing: border-box; }
+img, svg, video, canvas { max-width: 100%; height: auto; }
+
+/* --- Fluid typography: scales continuously between breakpoints
+   instead of jumping only at fixed widths. Falls back gracefully
+   if a page already sets an explicit font-size (specificity below). --- */
+h1 { font-size: clamp(22px, 4.2vw, 34px); }
+h2 { font-size: clamp(19px, 3vw, 26px); }
+h3 { font-size: clamp(15px, 2vw, 18px); }
+
+/* --- Touch-friendly tap targets (WCAG-ish minimum ~44px) --- */
+nav ul li a,
+.btn,
+.mobile-toggle,
+.search-btn,
+.foot-social a {
+  min-height: 40px;
+}
+nav ul li a { display: flex; align-items: center; }
+
+/* --- Active nav link indicator (set via assets/main.js) --- */
+nav ul li a.current {
+  color: var(--green, #4a9637);
+  font-weight: 800;
+}
+nav ul li a.current::after {
+  content: "";
+}
+
+/* --- Keyboard focus visibility (accessibility + feels interactive) --- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--green, #4a9637);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Sticky header: subtle compress + shadow once scrolled
+   (class toggled by assets/main.js) --- */
+header { transition: box-shadow .25s ease, height .25s ease; }
+header.is-scrolled { box-shadow: 0 6px 18px rgba(16,43,91,0.12); }
+
+/* --- Mobile nav overlay polish (backdrop + smoother open/close) --- */
+@media (max-width: 1000px) {
+  nav ul {
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  nav.nav-open ul {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  nav ul li a { min-height: 48px; }
+  body.nav-locked { overflow: hidden; }
+}
+
+/* --- Extra-small phones (iPhone SE / older Android, ~360px and below) --- */
+@media (max-width: 380px) {
+  .container { padding: 0 14px !important; }
+  .btn { padding: 9px 12px !important; font-size: 12px !important; }
+  .nav-right .btn span,
+  .nav-right .btn { white-space: normal !important; text-align: center; }
+}
+
+/* --- Tablet portrait fine-tuning (770–1024px): avoid cramped 2-col grids --- */
+@media (min-width: 640px) and (max-width: 900px) {
+  .trust-grid, .pillars-grid, .ind-grid, .ins-cards, .eco-grid {
+    gap: 16px !important;
+  }
+}
+
+/* --- Large desktop / wide monitors: prevent content stretching too thin --- */
+@media (min-width: 1600px) {
+  .container { max-width: 1500px; }
+}
+
+/* --- Print styles (nice-to-have, near-zero cost) --- */
+@media print {
+  header, footer, .mobile-toggle, .search-wrap, .btn { display: none !important; }
+}
+
+/* --- Reduced motion: respect user OS preference --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  html { scroll-behavior: auto !important; }
+}
