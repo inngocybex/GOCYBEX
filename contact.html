@@ -199,7 +199,7 @@ footer{background:#08183a; color:#C7D2DE;}
 
       <div class="info-item">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <div><h4>Address</h4><p><a href="maps.html" style="color:inherit; text-decoration:underline;">#6/B, 3rd Floor, MNK Rao Road, Behind Lalbagh Metro Station, Basavanagudi, Bengaluru - 560004</a></p></div>
+        <div><h4>Address</h4><p><a href="https://maps.app.goo.gl/YukK5HfaoA8zEjeB6" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">#6/B, 3rd Floor, MNK Rao Road, Behind Lalbagh Metro Station, Basavanagudi, Bengaluru - 560004</a></p></div>
       </div>
       <div class="info-item">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 6l8 7 8-7"/></svg></div>
@@ -246,16 +246,45 @@ footer{background:#08183a; color:#C7D2DE;}
         <label>Message</label>
         <textarea name="message" placeholder="Tell us about your cybersecurity capability goals..."></textarea>
       </div>
-      <button type="submit" class="btn btn-primary form-submit">Send Message →</button>
-      <p class="form-status" style="display:none; margin-top:12px; font-size:12.5px; color:var(--green); font-weight:700;">Thanks! Opening WhatsApp with your message details…</p>
+      <button type="submit" class="btn btn-primary form-submit" id="gocybex-submit-btn">Send Message →</button>
     </form>
+    <div id="gocybex-toast-container" style="position:fixed; top:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
     <script>
     (function(){
       var form = document.getElementById('gocybex-contact-form');
       if(!form) return;
+
+      // ── WhatsApp auto-send via CallMeBot (no manual redirect, no backend required) ──
+      // Setup (one-time, ~2 min): from the WhatsApp number +91 94813 59865, send the message
+      // "I allow callmebot to send me messages" to +34 621 21 32 92 (CallMeBot's number),
+      // then paste the API key CallMeBot replies with below. Free service: callmebot.com/blog/free-api-whatsapp-messages/
+      var CALLMEBOT_PHONE = '919481359865';
+      var CALLMEBOT_APIKEY = 'PASTE_YOUR_CALLMEBOT_APIKEY_HERE';
+
+      function showToast(message, ok){
+        var container = document.getElementById('gocybex-toast-container');
+        var toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'min-width:260px; max-width:340px; padding:14px 18px; border-radius:10px; '
+          + 'font-size:13px; font-weight:700; color:#fff; box-shadow:0 10px 30px rgba(0,0,0,0.18); '
+          + 'opacity:0; transform:translateX(20px); transition:opacity .25s ease, transform .25s ease; '
+          + 'background:' + (ok ? '#4a9637' : '#d1483f') + ';';
+        container.appendChild(toast);
+        requestAnimationFrame(function(){
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateX(0)';
+        });
+        setTimeout(function(){
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(20px)';
+          setTimeout(function(){ toast.remove(); }, 300);
+        }, 5000);
+      }
+
       form.addEventListener('submit', function(e){
         e.preventDefault();
         var f = form.elements;
+        var btn = document.getElementById('gocybex-submit-btn');
         var lines = [
           'New enquiry from GOCYBEX website:',
           'Name: ' + (f.firstName.value||'') + ' ' + (f.lastName.value||''),
@@ -266,21 +295,36 @@ footer{background:#08183a; color:#C7D2DE;}
           'Message: ' + (f.message.value||'-')
         ];
         var text = encodeURIComponent(lines.join('\n'));
-        var status = form.querySelector('.form-status');
-        if(status) status.style.display = 'block';
-        window.open('https://wa.me/919481359865?text=' + text, '_blank');
+
+        if(CALLMEBOT_APIKEY === 'PASTE_YOUR_CALLMEBOT_APIKEY_HERE'){
+          showToast('WhatsApp auto-send isn\'t configured yet on this site.', false);
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+
+        fetch('https://api.callmebot.com/whatsapp.php?phone=' + CALLMEBOT_PHONE
+              + '&text=' + text + '&apikey=' + CALLMEBOT_APIKEY)
+          .then(function(res){ return res.text().then(function(body){ return {ok: res.ok, body: body}; }); })
+          .then(function(result){
+            if(result.ok && !/error/i.test(result.body)){
+              showToast('Message sent successfully ✓', true);
+              form.reset();
+            } else {
+              showToast('Message failed to send. Please try again.', false);
+            }
+          })
+          .catch(function(){
+            showToast('Message failed to send. Please try again.', false);
+          })
+          .finally(function(){
+            btn.disabled = false;
+            btn.textContent = 'Send Message →';
+          });
       });
     })();
     </script>
-  </div>
-</section>
-
-<section class="map-strip container reveal">
-  <div class="map-box" style="height:360px;">
-    <iframe
-      src="https://www.google.com/maps?q=%236%2FB%2C+3rd+Floor%2C+MNK+Rao+Road%2C+Behind+Lalbagh+Metro+Station%2C+Basavanagudi%2C+Bengaluru+-+560004&output=embed"
-      width="100%" height="100%" style="border:0; display:block;" allowfullscreen="" loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade" title="GOCYBEX location on Google Maps"></iframe>
   </div>
 </section>
 
@@ -295,12 +339,12 @@ footer{background:#08183a; color:#C7D2DE;}
   </div>
 </section>
 
-<section class="pre-footer-links">
-  <div class="container pre-footer-inner">
-    <a href="careers.html">Careers</a>
-    <a href="news.html">In the News</a>
-    <a href="press-release.html">Press Release</a>
-    <a href="announcements.html">Announcements</a>
+<section class="pre-footer-links" style="background:#08183a !important;padding:16px 0 !important;border-bottom:1px solid rgba(255,255,255,0.08);">
+  <div class="container pre-footer-inner" style="display:flex !important;justify-content:center !important;align-items:center;gap:40px;flex-wrap:wrap;text-align:center;">
+    <a href="careers.html" style="color:#C7D2DE !important;font-size:12.5px;font-weight:700;letter-spacing:0.3px;text-decoration:none;">Careers</a>
+    <a href="news.html" style="color:#C7D2DE !important;font-size:12.5px;font-weight:700;letter-spacing:0.3px;text-decoration:none;">In the News</a>
+    <a href="press-release.html" style="color:#C7D2DE !important;font-size:12.5px;font-weight:700;letter-spacing:0.3px;text-decoration:none;">Press Release</a>
+    <a href="announcements.html" style="color:#C7D2DE !important;font-size:12.5px;font-weight:700;letter-spacing:0.3px;text-decoration:none;">Announcements</a>
   </div>
 </section>
 
@@ -310,7 +354,7 @@ footer{background:#08183a; color:#C7D2DE;}
       <a href="index.html" aria-label="GOCYBEX home" style="display:inline-block;"><img src="assets/logo-footer.png" alt="GOCYBEX logo" style="height:46px; width:auto; object-fit:contain; display:block;"></a>
     </div>
     <div class="foot-contact">
-      <a href="maps.html" style="color:inherit; text-decoration:none;">📍 #6/B, 3rd Floor, MNK Rao Road, Behind Lalbagh Metro Station, Basavanagudi, Bengaluru - 560004</a>
+      <a href="https://maps.app.goo.gl/YukK5HfaoA8zEjeB6" target="_blank" rel="noopener" style="color:inherit; text-decoration:none;">📍 #6/B, 3rd Floor, MNK Rao Road, Behind Lalbagh Metro Station, Basavanagudi, Bengaluru - 560004</a>
       <span>✉️ gcsrt@gcsrt.com</span>
       <span>📞 +91 99000 39039 &nbsp;|&nbsp; +91 94813 59865</span>
     </div>
